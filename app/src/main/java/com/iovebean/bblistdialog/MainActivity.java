@@ -3,17 +3,13 @@ package com.iovebean.bblistdialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.AlertDialog;
-import android.graphics.Rect;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 
 public class MainActivity extends AppCompatActivity {
@@ -32,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
                 R.layout.gridview_item,R.id.buttons,0,
                 new MyUtils.ResultListner() {
             @Override
-            public void getResult(String text) {
+            public void getResult(String text, String img) {
 
                 if(text.equals("第一张")){
                     Log.e("tag","第一张");
@@ -68,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
                 R.layout.gridview_item2,R.id.text,R.id.img,
                 new MyUtils.ResultListner() {
             @Override
-            public void getResult(String text) {
+            public void getResult(String text, String img) {
 
                 if(text.equals("1")){
                     Log.e("tag","1");
