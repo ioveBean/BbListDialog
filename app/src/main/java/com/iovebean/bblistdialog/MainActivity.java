@@ -1,38 +1,48 @@
 package com.iovebean.bblistdialog;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import android.app.AlertDialog;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.ImageView;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
 public class MainActivity extends AppCompatActivity {
 
+    private ImageView imageView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        imageView = findViewById(R.id.imageView);
     }
 
     public void textOnclicK(View view) {
         ArrayList<String> strings = new ArrayList<>();
-        strings.add("第一张");
-        strings.add("第二张");
+        strings.add("child");
+        strings.add("color");
         new MyUtils().showAlertList(this, strings,"目录",R.layout.buttonslist,R.id.buttongrid,
                 R.layout.gridview_item,R.id.buttons,0,
                 new MyUtils.ResultListner() {
             @Override
             public void getResult(String text, String img) {
 
-                if(text.equals("第一张")){
-                    Log.e("tag","第一张");
+                if(text.equals("child")){
+
                     doText2();
+                }
+                if(text.equals("color")){
+                    doColorAlert();
                 }
             }
                  /*   window.setGravity(Gravity.CENTER); 中间位置
@@ -54,6 +64,59 @@ public class MainActivity extends AppCompatActivity {
                         return R.style.DialogWhenLarge;
                     }
                 });
+    }
+    public LinkedHashMap<Integer, String> getResId(Class<?> c) {
+        try {
+
+
+            Field[] declaredFields = c.getDeclaredFields();
+            LinkedHashMap<Integer, String> maps = new LinkedHashMap<>();
+
+            for(int i=0;i<declaredFields.length;i++){
+                String name = declaredFields[i].getName();
+                if(name.contains("cc")){
+                    int anInt = declaredFields[i].getInt(declaredFields[i]);
+                    //color_name
+                //    name = name.replaceAll("cc([\\d]*)","");
+                 //   maps.put(anInt,name);
+                    Color color = new Color();
+                    int color1 =ContextCompat.getColor(MainActivity.this.getApplication(),anInt);
+                    String format = String.format("#%06x", color1 & 0x00FFFFFF);
+                    maps.put(anInt,format);
+                }
+                Log.e("name",name);
+                //  declaredFields[i].getName();
+            }
+
+            return maps;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private void doColorAlert() {
+        LinkedHashMap<Integer, String> map = getResId(R.color.class);
+
+        new MyUtils().showAlertList(this, map, "color", R.layout.colorgride, R.id.colorgrid,
+                R.layout.coloritem, R.id.text, R.id.img, new MyUtils.ResultListner() {
+                    @Override
+                    public void getResult(String text, String img) {
+                        imageView.setImageDrawable(ContextCompat.getDrawable(MainActivity.this,Integer.parseInt(img)));
+                    }
+
+                    @Override
+                    public void getDialog(AlertDialog btdialog) {
+
+                    }
+
+                    @Override
+                    public int setStyleId() {
+                        return 0;
+                    }
+                });
+
     }
 
     private void doText2() {
