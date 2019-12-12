@@ -53,8 +53,8 @@ public class MainActivity extends AppCompatActivity {
                     public void getDialog(AlertDialog btdialog) {
                         DisplayMetrics dm = new DisplayMetrics();
                         getWindowManager().getDefaultDisplay().getMetrics(dm);
+                        btdialog.getWindow().setGravity(Gravity.LEFT);
 
-                        Objects.requireNonNull(btdialog.getWindow()).setGravity(Gravity.LEFT);
                         btdialog.getWindow().setLayout(dm.widthPixels/3, dm.heightPixels);
 
                     }
@@ -65,31 +65,9 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
     }
-    public LinkedHashMap<Integer, String> getResId(Class<?> c) {
-        try {
-            Field[] declaredFields = c.getDeclaredFields();
-            LinkedHashMap<Integer, String> maps = new LinkedHashMap<>();
-            for (Field declaredField : declaredFields) {
-                String name = declaredField.getName();
-                if (name.contains("cc")) {
-                    int anInt = declaredField.getInt(declaredField);
-                    //color_name
-                    //name = name.replaceAll("cc([\\d]*)","");
-                    // maps.put(anInt,name);
-                    int color1 = ContextCompat.getColor(MainActivity.this.getApplication(), anInt);
-                    String format = String.format("#%06x", color1 & 0x00FFFFFF);
-                    maps.put(anInt, format);
-                }
-            }
-            return maps;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
 
     private void doColorAlert() {
-        LinkedHashMap<Integer, String> map = getResId(R.color.class);
+        LinkedHashMap<Integer, String> map = ResIdUtils. getResId(R.color.class,getApplication());
         new MyUtils().showAlertList(this, map, "color", R.layout.colorgride, R.id.colorgrid,
                 R.layout.coloritem, R.id.text, R.id.img, new MyUtils.ResultListner() {
                     @Override
