@@ -74,25 +74,22 @@ public class MyUtils {
 
                 }else if(name instanceof HashSet){
                     HashSet list = (HashSet) name;
-                    Iterator iterator = list.iterator();    
-                    while (iterator.hasNext()){
-                        Object next = iterator.next();
-                        Map<String, Object> map= new HashMap<>();
+                    for (Object next : list) {
+                        Map<String, Object> map = new HashMap<>();
                         map.put("img", "");
-                        map.put("text",next);
+                        map.put("text", next);
                         dataList.add(map);
                     }
                     from= new String[]{"text"};
                     to= new int[]{textid};
                 }else if(name instanceof LinkedHashMap){
                     LinkedHashMap map1 = (LinkedHashMap) name;
-                    Iterator it = map1.entrySet().iterator();
-                    while (it.hasNext()) {
-                        Map.Entry entry = (Map.Entry) it.next();
+                    for (Object o : map1.entrySet()) {
+                        Map.Entry entry = (Map.Entry) o;
 
-                        Map<String, Object> map= new HashMap<>();
+                        Map<String, Object> map = new HashMap<>();
                         map.put("img", entry.getKey());
-                        map.put("text",entry.getValue());
+                        map.put("text", entry.getValue());
                         dataList.add(map);
                     }
                     from= new String[]{"img", "text"};
@@ -100,13 +97,12 @@ public class MyUtils {
                     to= new int[]{imageid, textid};
                 }else if(name instanceof  HashMap){
                     HashMap map1 = (HashMap) name;
-                    Iterator it = map1.entrySet().iterator();
-                    while (it.hasNext()) {
-                        Map.Entry entry = (Map.Entry) it.next();
+                    for (Object o : map1.entrySet()) {
+                        Map.Entry entry = (Map.Entry) o;
 
-                        Map<String, Object> map= new HashMap<>();
+                        Map<String, Object> map = new HashMap<>();
                         map.put("img", entry.getKey());
-                        map.put("text",entry.getValue());
+                        map.put("text", entry.getValue());
                         dataList.add(map);
                     }
                     from= new String[]{"img", "text"};
@@ -114,10 +110,10 @@ public class MyUtils {
                 }else if(name instanceof  String[]){
                     String[] array = (String[]) name;
 
-                    for(int i=0;i<array.length;i++){
-                        Map<String, Object> map= new HashMap<>();
+                    for (String s : array) {
+                        Map<String, Object> map = new HashMap<>();
                         map.put("img", "");
-                        map.put("text",array[i]);
+                        map.put("text", s);
                         dataList.add(map);
                     }
                     from= new String[]{"text"};

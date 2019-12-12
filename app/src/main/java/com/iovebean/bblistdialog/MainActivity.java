@@ -4,7 +4,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import android.app.AlertDialog;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -15,6 +14,7 @@ import android.widget.ImageView;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
                         DisplayMetrics dm = new DisplayMetrics();
                         getWindowManager().getDefaultDisplay().getMetrics(dm);
 
-                        btdialog.getWindow().setGravity(Gravity.LEFT);
+                        Objects.requireNonNull(btdialog.getWindow()).setGravity(Gravity.LEFT);
                         btdialog.getWindow().setLayout(dm.widthPixels/3, dm.heightPixels);
 
                     }
@@ -69,16 +69,16 @@ public class MainActivity extends AppCompatActivity {
         try {
             Field[] declaredFields = c.getDeclaredFields();
             LinkedHashMap<Integer, String> maps = new LinkedHashMap<>();
-            for(int i=0;i<declaredFields.length;i++){
-                String name = declaredFields[i].getName();
-                if(name.contains("cc")){
-                    int anInt = declaredFields[i].getInt(declaredFields[i]);
+            for (Field declaredField : declaredFields) {
+                String name = declaredField.getName();
+                if (name.contains("cc")) {
+                    int anInt = declaredField.getInt(declaredField);
                     //color_name
                     //name = name.replaceAll("cc([\\d]*)","");
                     // maps.put(anInt,name);
-                    int color1 =ContextCompat.getColor(MainActivity.this.getApplication(),anInt);
+                    int color1 = ContextCompat.getColor(MainActivity.this.getApplication(), anInt);
                     String format = String.format("#%06x", color1 & 0x00FFFFFF);
-                    maps.put(anInt,format);
+                    maps.put(anInt, format);
                 }
             }
             return maps;
@@ -131,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
                     DisplayMetrics dm = new DisplayMetrics();
                     getWindowManager().getDefaultDisplay().getMetrics(dm);
 
-                    btdialog.getWindow().setGravity(Gravity.LEFT);
+                    Objects.requireNonNull(btdialog.getWindow()).setGravity(Gravity.LEFT);
                     btdialog.getWindow().setLayout(dm.widthPixels/2, dm.heightPixels);
 
 
