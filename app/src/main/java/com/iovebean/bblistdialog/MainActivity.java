@@ -67,29 +67,21 @@ public class MainActivity extends AppCompatActivity {
     }
     public LinkedHashMap<Integer, String> getResId(Class<?> c) {
         try {
-
-
             Field[] declaredFields = c.getDeclaredFields();
             LinkedHashMap<Integer, String> maps = new LinkedHashMap<>();
-
             for(int i=0;i<declaredFields.length;i++){
                 String name = declaredFields[i].getName();
                 if(name.contains("cc")){
                     int anInt = declaredFields[i].getInt(declaredFields[i]);
                     //color_name
-                //    name = name.replaceAll("cc([\\d]*)","");
-                 //   maps.put(anInt,name);
-                    Color color = new Color();
+                    //name = name.replaceAll("cc([\\d]*)","");
+                    // maps.put(anInt,name);
                     int color1 =ContextCompat.getColor(MainActivity.this.getApplication(),anInt);
                     String format = String.format("#%06x", color1 & 0x00FFFFFF);
                     maps.put(anInt,format);
                 }
-                Log.e("name",name);
-                //  declaredFields[i].getName();
             }
-
             return maps;
-
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -98,19 +90,16 @@ public class MainActivity extends AppCompatActivity {
 
     private void doColorAlert() {
         LinkedHashMap<Integer, String> map = getResId(R.color.class);
-
         new MyUtils().showAlertList(this, map, "color", R.layout.colorgride, R.id.colorgrid,
                 R.layout.coloritem, R.id.text, R.id.img, new MyUtils.ResultListner() {
                     @Override
                     public void getResult(String text, String img) {
                         imageView.setImageDrawable(ContextCompat.getDrawable(MainActivity.this,Integer.parseInt(img)));
                     }
-
                     @Override
                     public void getDialog(AlertDialog btdialog) {
 
                     }
-
                     @Override
                     public int setStyleId() {
                         return 0;
