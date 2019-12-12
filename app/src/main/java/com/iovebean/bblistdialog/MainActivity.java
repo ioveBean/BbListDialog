@@ -131,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
                     DisplayMetrics dm = new DisplayMetrics();
                     getWindowManager().getDefaultDisplay().getMetrics(dm);
 
-                    Objects.requireNonNull(btdialog.getWindow()).setGravity(Gravity.LEFT);
+                    btdialog.getWindow().setGravity(Gravity.LEFT);
                     btdialog.getWindow().setLayout(dm.widthPixels/2, dm.heightPixels);
 
 
