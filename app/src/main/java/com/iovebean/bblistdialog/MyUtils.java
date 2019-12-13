@@ -20,30 +20,46 @@ import java.util.Map;
 public class MyUtils {
 
     public interface ResultListner{
-        void getResult(String text, String img);
-        void getDialog(AlertDialog btdialog);
-        int setStyleId();
+
+        void getResult(String text, String img,int id,int msg);
+        void getDialog(AlertDialog btdialog ,int msg);
+        int setStyleId(int msg);
     }
     private  android.app.AlertDialog btdialog;
     private  ArrayList<Map<String, Object>> dataList;
 
-    public <T> void showAlertList(Activity activity,T list, String title,
-                                  int layoutid,int gridid,
-                                  int layoutitem,int textid,int imageid,
-                                  final ResultListner resultListner){
+    /**
+     *
+     * @param activity
+     * @param list
+     * @param title
+     * @param layoutid
+     * @param gridid
+     * @param layoutitem
+     * @param textid
+     * @param imageid
+     * @param resultListner
+     * @param <T>
+     */
+    public <T> void showAlertList(Activity activity, T list, String title,
+                                  int layoutid, int gridid,
+                                  int layoutitem, int textid, int imageid, final int msg,
+                                  final ResultListner resultListner ){
 
-        showclicklist(activity,resultListner,list,title,layoutid,gridid,layoutitem,textid,imageid, new AdapterView.OnItemClickListener() {
+        showclicklist(activity,resultListner,list,title,layoutid,gridid,layoutitem,textid,imageid, msg,new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
                                     long arg3) {
                 String text = dataList.get(arg2).get("text").toString();
                 String img = dataList.get(arg2).get("img").toString();
-                resultListner.getResult(text,img);
+                //img返回key,arg2返回位置
+                resultListner.getResult(text,img,arg2,msg);
                 btdialog.dismiss();
             }
         });
     }
-    private <T> void showclicklist(Activity activity,ResultListner resultListner,T name,String title,int layoutid,int gridId ,int layoutitem,int textid,int imageid,AdapterView.OnItemClickListener listener ) {
+    private <T> void showclicklist(Activity activity,ResultListner resultListner,T name,String title,int layoutid,int gridId ,
+                                   int layoutitem,int textid,int imageid,int msg,AdapterView.OnItemClickListener listener ) {
 
             LayoutInflater inflater = LayoutInflater.from(activity);
 
@@ -60,13 +76,21 @@ public class MyUtils {
 
         int[] to;
 
+                 Object text;
                 dataList = new ArrayList<>();
                 if(name instanceof ArrayList){
                     ArrayList list = (ArrayList) name;
                     for(int i=0;i<list.size();i++){
                         Map<String, Object> map= new HashMap<>();
                         map.put("img", "");
-                        map.put("text",list.get(i));
+                        Object o = list.get(i);
+                        if(o.getClass().isArray()){
+                            Object[] o1 = (Object[])o;
+                            text =o1[0];
+                        }else {
+                            text = o;
+                        }
+                        map.put("text",text);
                         dataList.add(map);
                     }
                    from= new String[]{"text"};
@@ -77,7 +101,14 @@ public class MyUtils {
                     for (Object next : list) {
                         Map<String, Object> map = new HashMap<>();
                         map.put("img", "");
-                        map.put("text", next);
+
+                        if(next.getClass().isArray()){
+                            Object[] o1 = (Object[])next;
+                            text =o1[0];
+                        }else {
+                            text = next;
+                        }
+                        map.put("text", text);
                         dataList.add(map);
                     }
                     from= new String[]{"text"};
@@ -88,8 +119,19 @@ public class MyUtils {
                         Map.Entry entry = (Map.Entry) o;
 
                         Map<String, Object> map = new HashMap<>();
+
+
+
                         map.put("img", entry.getKey());
-                        map.put("text", entry.getValue());
+
+                         o = entry.getValue();
+                        if(o.getClass().isArray()){
+                            Object[] o1 = (Object[])o;
+                            text =o1[0];
+                        }else {
+                            text = o;
+                        }
+                        map.put("text",text );
                         dataList.add(map);
                     }
                     from= new String[]{"img", "text"};
@@ -101,8 +143,17 @@ public class MyUtils {
                         Map.Entry entry = (Map.Entry) o;
 
                         Map<String, Object> map = new HashMap<>();
+
                         map.put("img", entry.getKey());
-                        map.put("text", entry.getValue());
+
+                        o = entry.getValue();
+                        if(o.getClass().isArray()){
+                            Object[] o1 = (Object[])o;
+                            text =o1[0];
+                        }else {
+                            text = o;
+                        }
+                        map.put("text", text);
                         dataList.add(map);
                     }
                     from= new String[]{"img", "text"};
@@ -111,6 +162,7 @@ public class MyUtils {
                     String[] array = (String[]) name;
 
                     for (String s : array) {
+
                         Map<String, Object> map = new HashMap<>();
                         map.put("img", "");
                         map.put("text", s);
@@ -133,7 +185,7 @@ public class MyUtils {
             gridView.setAdapter(adapter);
 
             gridView.setOnItemClickListener(listener);
-           int id =  resultListner.setStyleId();
+           int id =  resultListner.setStyleId(msg);
 
            if(id==0){
                btdialog = new android.app.AlertDialog.Builder(activity).setTitle(title).setView(btDialogView).create();
@@ -144,7 +196,7 @@ public class MyUtils {
            }
         btdialog.setCanceledOnTouchOutside(true);
             btdialog.show();
-            resultListner.getDialog(btdialog);
+            resultListner.getDialog(btdialog,msg);
 
     }
 
