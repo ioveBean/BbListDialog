@@ -43,21 +43,29 @@ public class MainActivity extends AppCompatActivity implements BbListDialog.Resu
 
     public void textOnclicK(View view) {
         ArrayList<String> strings = new ArrayList<>();
-        strings.add("child");
-        strings.add("color");
-        strings.add("seekbar");
-        strings.add("input");
-        strings.add("addview");
-        strings.add("systemDialog");
-        new BbListDialog().showAlertList(this, strings,"目录",
+        if(!BbListDialog.bbHashmap.containsKey(TEXTONCLICK)){
+            strings.add("child");
+            strings.add("color");
+            strings.add("seekbar");
+            strings.add("input");
+            strings.add("addview");
+            strings.add("systemDialog");
+            BbListDialog.bbHashmap.put(TEXTONCLICK,strings);
+        }
+        new BbListDialog().showAlertList(this, BbListDialog.bbHashmap,"目录",
                 TEXTONCLICK,this);
     }
 
     private void doColorAlert() {
-        LinkedHashMap<Integer, String> map = ResIdUtils. getResId(R.color.class,getApplication());
-        this.colorMap =map;
+
         BbListDialog bbListDialog = new BbListDialog();
-        bbListDialog.showAlertList(this, map, "color", COLORMSG, this);
+        Object o = BbListDialog.bbHashmap.get(COLORMSG);
+        if(o==null){
+            LinkedHashMap<Integer, String> map = ResIdUtils. getResId(R.color.class,getApplication());
+            this.colorMap =map;
+            BbListDialog.bbHashmap.put(COLORMSG,map);
+        }
+        bbListDialog.showAlertList(this, BbListDialog.bbHashmap, "color", COLORMSG, this);
     }
 /*
 *
@@ -65,10 +73,15 @@ public class MainActivity extends AppCompatActivity implements BbListDialog.Resu
 * */
     private void doText2() {
 
-        LinkedHashMap linkedHashMap = new LinkedHashMap();
-        linkedHashMap.put(R.drawable.emotion_icon_23_popup,"1");
-        linkedHashMap.put(R.drawable.emotion_icon_24_popup,"2");
-        new BbListDialog().showAlertList(this, linkedHashMap,"    ",
+
+        Object o = BbListDialog.bbHashmap.get(DOTEXT2);
+        if(o==null){
+            LinkedHashMap linkedHashMap = new LinkedHashMap();
+            linkedHashMap.put(R.drawable.emotion_icon_23_popup,"1");
+            linkedHashMap.put(R.drawable.emotion_icon_24_popup,"2");
+            BbListDialog.bbHashmap.put(DOTEXT2,linkedHashMap);
+        }
+        new BbListDialog().showAlertList(this, BbListDialog.bbHashmap,"    ",
                DOTEXT2, this );
     }
 
@@ -270,7 +283,7 @@ public class MainActivity extends AppCompatActivity implements BbListDialog.Resu
                 normalDialog.setPositiveButton("enter", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        //自己实现这个方法
+                        //实现result
                         getResult(null,null,1,DOSYSTEMDIALOG);
                     }
                 });

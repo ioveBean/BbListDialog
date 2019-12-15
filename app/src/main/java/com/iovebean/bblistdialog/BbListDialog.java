@@ -28,9 +28,13 @@ public class BbListDialog {
     private static final String ADDVIEW ="addView" ;
 
 
+
+
+    //返回系统dialog不需要show()并实现result
     public interface GetSystemDialogListner{
         Dialog getSystemDialog(int styleId,int msg);
     }
+
     public interface AddViewListner{
         /**
          *
@@ -78,6 +82,13 @@ public class BbListDialog {
         void getDialog(Dialog bbdialog ,int msg);
         int setStyleId(int msg);
     }
+
+    /**
+     *
+     * @param listner 返回 实现的dialog 不需要show() 并实现result
+     * @param resultListner 需实现 style,result,dialog
+     * @param msg 唯一标识
+     */
     public void showSystemDialog(GetSystemDialogListner listner,ResultListner resultListner,int msg) {
         int StyleId = resultListner.setStyleId(msg);
         Dialog systemDialog = listner.getSystemDialog(StyleId,msg);
@@ -85,6 +96,14 @@ public class BbListDialog {
         systemDialog.setCanceledOnTouchOutside(true);
         resultListner.getDialog(systemDialog,msg);
     }
+
+    /**
+     *
+     * @param activity activity
+     * @param title 名称
+     * @param msg 唯一标识
+     * @param resultListner 需要实现 listner 里的 kind ,ids,style,result,dialog
+     */
     public void showBBDialog(Activity activity, String title, final int msg,
                              final ResultListner resultListner) {
 
@@ -185,6 +204,14 @@ public class BbListDialog {
         return inflaterid;
     }
 
+    /**
+     *
+     * @param activity activity
+     * @param title 名称
+     * @param msg 唯一标识
+     * @param resultListner 需实现 style,result,dialog
+     * @param addViewListner 在这里实现resultListner 里的result 并返回view
+     */
     public void showAddViewAlertDialog(Activity activity, String title,  int msg, final ResultListner resultListner,AddViewListner addViewListner) {
         LayoutInflater inflater = LayoutInflater.from(activity);
         View view = addViewListner.bbAddView(msg,inflater);
@@ -195,17 +222,19 @@ public class BbListDialog {
     private  android.app.AlertDialog btdialog;
     private  ArrayList<Map<String, Object>> dataList;
 
+    public static BbDialogHashMap bbHashmap = new BbDialogHashMap();
     /**
      *
      * @param activity
-     * @param list 内容 ,arraylist 如果是LinkedHashMap则key是图片id,value是文字,
+     * @param  map 把list 存在map中 内容 ,arraylist 如果是LinkedHashMap则key是图片id,value是文字,
      * @param title 标题
      * @param msg 唯一标识
-     * @param resultListner 监听
+     * @param resultListner 监听  需实现 ids,style,result,dialog
      * @param <T> 可以是arraylist LinkedHashMap 等
      */
-    public <T> void showAlertList(Activity activity, T list, String title, final int msg,
+    public <T> void showAlertList(Activity activity, BbDialogHashMap map, String title, final int msg,
                                   final ResultListner resultListner ){
+        Object list = map.get(msg);
 
         showclicklist(activity,resultListner,list,title, msg,new AdapterView.OnItemClickListener() {
             @Override
@@ -365,6 +394,5 @@ public class BbListDialog {
             resultListner.getDialog(btdialog,msg);
 
     }
-
 
 }
