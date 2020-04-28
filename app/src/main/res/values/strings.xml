@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">BbListDialog</string>
+    <string name="app_ok">ok</string>
+    <string name="app_cancel">cancel</string>
 </resources>

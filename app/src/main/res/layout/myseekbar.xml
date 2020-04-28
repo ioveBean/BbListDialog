@@ -15,4 +15,24 @@
         android:id="@+id/myseekbarid"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp">
+
+
+
+        <Button android:id="@+id/action_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toStartOf="@+id/action_ok"
+            android:includeFontPadding="false"
+            android:paddingEnd="8dp"
+            android:paddingStart="8dp"
+            android:background="?attr/selectableItemBackground"
+            android:textColor="@color/colorAccent"
+            android:text="@string/app_cancel"/>
+
+    </RelativeLayout>
+
 </LinearLayout>

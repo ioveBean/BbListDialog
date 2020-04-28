@@ -1,4 +1,4 @@
-package com.iovebean.bblistdialog;
+package com.iovebean.bblistdialog.BbListDialog;
 
 import android.content.Context;
 

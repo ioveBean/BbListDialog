@@ -1,44 +1,67 @@
 package com.iovebean.bblistdialog;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
+import android.os.Environment;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.Toast;
 
+import com.iovebean.bblistdialog.BbListDialog.BbListDialog;
+import com.iovebean.bblistdialog.BbListDialog.ResIdUtils;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.TreeMap;
 
-public class MainActivity extends AppCompatActivity implements BbListDialog.ResultListner, BbListDialog.AddViewListner, BbListDialog.GetSystemDialogListner {
 
-    private static final int TEXTONCLICK = 2;
-    private static final int DOTEXT2 = 3;
-    private static final int SEEKBAE = 4;
-    private static final int INPUT =5 ;
-    private static final int ADDVIEW = 6;
-    private static final int DOSYSTEMDIALOG = 7;
-    private ImageView imageView;
-    private static final int COLORMSG =1;
-    private LinkedHashMap<Integer, String> colorMap;
+import static com.iovebean.bblistdialog.utils.OpenDirectory.initPermission;
+import static com.iovebean.bblistdialog.MyResultListner.ADDVIEW;
+import static com.iovebean.bblistdialog.MyResultListner.COLORMSG;
+import static com.iovebean.bblistdialog.MyResultListner.DOSYSTEMDIALOG;
+import static com.iovebean.bblistdialog.MyResultListner.DOTEXT2;
+import static com.iovebean.bblistdialog.MyResultListner.INPUT;
+import static com.iovebean.bblistdialog.MyResultListner.SEEKBAE;
+import static com.iovebean.bblistdialog.MyResultListner.TEXTONCLICK;
+
+public class MainActivity extends AppCompatActivity {
+
+
+
+    ImageView imageView;
+
+    LinkedHashMap<Integer, String> colorMap;
     private Dialog mbtdialog;
+    private ArrayList<Object> pathFromSD;
+    final ThreadLocal<TreeMap<Integer, StringBuilder>> treeMap1 = new ThreadLocal<TreeMap<Integer, StringBuilder>>() {
+        @Override
+        protected TreeMap<Integer, StringBuilder> initialValue() {
+            return new TreeMap<Integer, StringBuilder>(new Comparator<Integer>() {
+                @Override
+                public int compare(Integer o1, Integer o2) {
+                    return Integer.compare(o1, o2);
+                }
+            });
+        }
+    };
+    public int lin ;
+    public int editortime =0;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         imageView = findViewById(R.id.imageView);
+        initPermission(this);
     }
 
     public void textOnclicK(View view) {
@@ -50,13 +73,17 @@ public class MainActivity extends AppCompatActivity implements BbListDialog.Resu
             strings.add("input");
             strings.add("addview");
             strings.add("systemDialog");
+            strings.add("Directory");
+            strings.add("editer");
+            strings.add("text");
             BbListDialog.bbHashmap.put(TEXTONCLICK,strings);
         }
+
         new BbListDialog().showAlertList(this, BbListDialog.bbHashmap,"目录",
-                TEXTONCLICK,this);
+                TEXTONCLICK,MyResultListner.getInstance());
     }
 
-    private void doColorAlert() {
+    void doColorAlert() {
 
         BbListDialog bbListDialog = new BbListDialog();
         Object o = BbListDialog.bbHashmap.get(COLORMSG);
@@ -65,179 +92,84 @@ public class MainActivity extends AppCompatActivity implements BbListDialog.Resu
             this.colorMap =map;
             BbListDialog.bbHashmap.put(COLORMSG,map);
         }
-        bbListDialog.showAlertList(this, BbListDialog.bbHashmap, "color", COLORMSG, this);
+        bbListDialog.showAlertList(this, BbListDialog.bbHashmap, "color", COLORMSG, MyResultListner.getInstance());
     }
 /*
 *
 *
 * */
-    private void doText2() {
+public void doText2() {
 
 
         Object o = BbListDialog.bbHashmap.get(DOTEXT2);
         if(o==null){
-            LinkedHashMap linkedHashMap = new LinkedHashMap();
-            linkedHashMap.put(R.drawable.emotion_icon_23_popup,"1");
-            linkedHashMap.put(R.drawable.emotion_icon_24_popup,"2");
-            BbListDialog.bbHashmap.put(DOTEXT2,linkedHashMap);
+
+            ArrayList<Object[]> objects = new ArrayList<>();
+            HashMap<String, Object> map = new HashMap<>();
+            objects.add(new Object[]{"2",R.drawable.emotion_icon_23_popup ,null});
+            objects.add(new Object[]{"1",R.drawable.emotion_icon_23_popup,null});
+            objects.add(new Object[]{"1",R.drawable.emotion_icon_23_popup ,null});
+            BbListDialog.bbHashmap.put(DOTEXT2,objects);
+
+
         }
+
         new BbListDialog().showAlertList(this, BbListDialog.bbHashmap,"    ",
-               DOTEXT2, this );
+               DOTEXT2, MyResultListner.getInstance() );
     }
 
-    private void doAddViewAlert() {
-
-        new BbListDialog().showAddViewAlertDialog(this,"addview",ADDVIEW,this,this);
+    void doAddViewAlert() {
+        new BbListDialog().showAddViewAlertDialog(this,"addview",ADDVIEW,MyResultListner.getInstance(),MyResultListner.getInstance());
     }
-    private void doInputAlert() {
+    public void doInputAlert() {
         new BbListDialog().showBBDialog(this,"input",
-                INPUT, this);
+                INPUT, MyResultListner.getInstance(),BbListDialog.INPUT);
     }
 
-    private void doSeekbarAlert() {
+    public void doSeekbarAlert() {
 
         new BbListDialog().showBBDialog(this,"seekbar",
-                SEEKBAE, this );
+                SEEKBAE, MyResultListner.getInstance() ,BbListDialog.SEEKBAE);
     }
 
-    @Override
-    public String getkind(int msg) {
-        switch (msg){
-            case SEEKBAE:
-                return BbListDialog.SEEKBAE;
-            case INPUT:
-                return BbListDialog.INPUT;
+    void doSystemDialog() {
+        new BbListDialog().showSystemDialog(this,MyResultListner.getInstance(),MyResultListner.getInstance(),DOSYSTEMDIALOG,null);
+    }
+
+
+    ArrayList<Object[]> list = new ArrayList<>();
+
+
+
+    public String saveString(String text,String s)
+    {
+        String absolutePath = Environment.getExternalStorageDirectory().toString() + "/accounts";
+        File destDir = new File(absolutePath);
+        if (!destDir.exists()) {
+            destDir.mkdirs();
         }
 
-        return null;
-    }
-    private void doSystemDialog() {
-        new BbListDialog().showSystemDialog(this,this,DOSYSTEMDIALOG);
-    }
+        try
+        {
+            absolutePath = Environment.getExternalStorageDirectory().toString() + "/bblistDialog/" + text+".txt";
 
-    @Override
-    public int[] getids(int msg) {
-        switch (msg){
+            FileOutputStream outStream = new FileOutputStream(absolutePath,false);
+            OutputStreamWriter writer = new OutputStreamWriter(outStream,"utf-8");
+            writer.write(s);
 
-            case SEEKBAE:
-                return new int[]{R.layout.myseekbar,R.id.myseekbarid,R.id.myseekbaritx};
-            case INPUT:
-                return new int[]{R.layout.myinput, R.id.myedinput};
-            case TEXTONCLICK:
-                return new int[]{R.layout.buttonslist,R.id.buttongrid,
-                        R.layout.gridview_item,R.id.buttons,0};
-            case DOTEXT2:
-                return new int[]{R.layout.buttonslist2,R.id.buttongrid,
-                        R.layout.gridview_item2,R.id.text,R.id.img};
-            case COLORMSG:
-                return new int[]{ R.layout.colorgride, R.id.colorgrid,
-                        R.layout.coloritem, R.id.text, R.id.img};
+            writer.flush();
+            writer.close();//记得关闭
+
+            outStream.close();
         }
-
-        return new int[0];
-    }
-
-    @Override
-    public void getResult(String text, String img, int id, int msg) {
-
-        switch (msg){
-            case DOSYSTEMDIALOG:
-                if(id==1){
-                    Toast.makeText(this,"hello",Toast.LENGTH_SHORT).show();
-                }
-                break;
-            case ADDVIEW:
-                Toast.makeText(this,text,Toast.LENGTH_SHORT).show();
-                //这种情况或许需要在ondistroid中mbtdialog=null;
-
-                break;
-            case TEXTONCLICK:
-                if(text.equals("child")){
-                    doText2();
-                }
-                if(text.equals("color")){
-                    doColorAlert();
-                }
-                if(text.equals("seekbar")){
-                    doSeekbarAlert();
-                }
-                if(text.equals("input")){
-                    doInputAlert();
-                }
-                if(text.equals("addview")){
-                    doAddViewAlert();
-                }
-                if(text.equals("systemDialog")){
-                    doSystemDialog();
-                }
-                break;
-            case DOTEXT2:
-                if(text.equals("1")){
-                    Log.e("tag","1");
-                }
-                break;
-            case COLORMSG:
-
-                imageView.setImageDrawable(ContextCompat.getDrawable(MainActivity.this,Integer.parseInt(img)));
-
-                String s = colorMap.get(Integer.parseInt(img));
-                Log.e("name",s);
-
-                break;
-            case INPUT:
-                Toast.makeText(this,text,Toast.LENGTH_SHORT).show();
-                break;
+        catch (Exception e)
+        {
+            Log.e("m", e.getMessage());
         }
-
+        return  absolutePath;
     }
 
 
-
-    @Override
-    public void getDialog(Dialog bbdialog, int msg) {
-        if(bbdialog ==null){
-            Log.e("null","null");
-        }
-         this.mbtdialog = bbdialog;
-        switch (msg){
-            case DOSYSTEMDIALOG:
-            case COLORMSG:
-                break;
-            case TEXTONCLICK:
-                DisplayMetrics dm = new DisplayMetrics();
-                getWindowManager().getDefaultDisplay().getMetrics(dm);
-                bbdialog.getWindow().setGravity(Gravity.LEFT);
-                bbdialog.getWindow().setLayout(dm.widthPixels/3, dm.heightPixels);
-
-                break;
-            case DOTEXT2:
-                //这个可设置大小
-                 dm = new DisplayMetrics();
-                getWindowManager().getDefaultDisplay().getMetrics(dm);
-                bbdialog.getWindow().setGravity(Gravity.LEFT);
-                bbdialog.getWindow().setLayout(dm.widthPixels/2, dm.heightPixels);
-
-                break;
-
-
-        }
-    }
-
-    @Override
-    public int setStyleId(int msg) {
-        switch (msg){
-            case ADDVIEW:
-            case INPUT:
-            case SEEKBAE:
-
-            case COLORMSG:
-                break;
-            default:
-                return R.style.DialogWhenLarge;
-
-        }
-        return 0;
-    }
 
     @Override
     protected void onDestroy() {
@@ -245,52 +177,5 @@ public class MainActivity extends AppCompatActivity implements BbListDialog.Resu
         super.onDestroy();
     }
 
-    @Override
-    public View bbAddView(int msg, LayoutInflater inflater) {
-        switch (msg){
-            case ADDVIEW:
-                LinearLayout linearLayout = new LinearLayout(this);
-                linearLayout.setOrientation(LinearLayout.VERTICAL);
-                final EditText editText = new EditText(this);
-                linearLayout.addView(editText);
 
-                Button button = new Button(this);
-                button.setText(android.R.string.ok);
-                button.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        getResult(editText.getText().toString(),"",0,ADDVIEW);
-                        if(mbtdialog!=null){
-                            mbtdialog.dismiss();
-                            mbtdialog=null;
-                        }
-                    }
-                });
-                linearLayout.addView(button);
-                return linearLayout;
-
-        }
-        return null;
-    }
-
-    @Override
-    public Dialog getSystemDialog(int styleId,int msg) {
-        switch (msg){
-            case DOSYSTEMDIALOG:
-                final AlertDialog.Builder normalDialog =
-                        new AlertDialog.Builder(MainActivity.this);
-                normalDialog.setMessage("hello");
-                normalDialog.setPositiveButton("enter", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //实现result
-                        getResult(null,null,1,DOSYSTEMDIALOG);
-                    }
-                });
-                // 显示
-                AlertDialog alertDialog = normalDialog.create();
-                return alertDialog;
-        }
-        return null;
-    }
 }
